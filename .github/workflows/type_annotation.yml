@@ -2,8 +2,15 @@ name: type_annotation
 
 on:
   workflow_call:
-  push:
-
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_PASSWORD:
+        required: true
+      CLOUDSMITH_PIP:
+        required: true
+      CARTA_CI_GITHUB_TOKEN:
+        required: true
 jobs:
   run_mypy:
     container:
