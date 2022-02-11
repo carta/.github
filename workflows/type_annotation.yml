@@ -1,0 +1,41 @@
+name: type_annotation
+
+on:
+  workflow_call:
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_PASSWORD:
+        required: true
+      CLOUDSMITH_PIP:
+        required: true
+      CARTA_CI_GITHUB_TOKEN:
+        required: true
+jobs:
+  run_mypy:
+    container:
+      image: esharesinc/automated-refactoring
+      credentials:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      options: --user root
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: run Mypy
+        run: |
+          set -x
+          make deps
+          if [ -f mypy_dirs.txt ]; then
+            mypy @mypy_dirs.txt | tee mypy_report
+          else
+            mypy . | tee mypy_report.txt
+          fi
+      - name: report Mypy errors on the PR
+        if: ${{ failure() }}
+        env:
+          CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
+          GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
+        run: |
+          set -x
+          python -m fixit_linter.linter.ci.add_comment_on_pr --message "Mypy identified some errors:" --inline --from-file mypy_report.txt --parser mypy
