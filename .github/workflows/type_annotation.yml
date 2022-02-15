@@ -23,6 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: run Mypy
+        env:
+          CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
         run: |
           set -x
           make deps
@@ -34,7 +36,6 @@ jobs:
       - name: report Mypy errors on the PR
         if: ${{ failure() }}
         env:
-          CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
           GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
         run: |
           set -x
