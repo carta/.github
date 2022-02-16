@@ -23,10 +23,12 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: run Mypy
+        shell: bash
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
         run: |
           set -x
+          set -o pipefail
           make deps
           if [ -f mypy_dirs.txt ]; then
             mypy @mypy_dirs.txt | tee mypy_report
