@@ -28,7 +28,7 @@ jobs:
           path: /root/venv/
           key: venv-${{ hashFiles('**/requirements*.txt') }}-${{ hashFiles('requirements/*.txt') }}
       - name: Create a venv and install dependencies
-        run: python -m venv /root/venv/ && . /root/venv/bin/activate && pip install --upgrade pip setuptools wheel && make deps
+        run: python -m venv /root/venv/ && . /root/venv/bin/activate && pip install --upgrade pip wheel && pip install setuptools==58.0.1 && make deps
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
