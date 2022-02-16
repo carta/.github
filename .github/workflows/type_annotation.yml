@@ -27,12 +27,13 @@ jobs:
         with:
           path: /root/venv/
           key: venv-${{ hashFiles('**/requirements*.txt') }}-${{ hashFiles('requirements/*.txt') }}
-      - run: python -m venv /root/venv/ && . /root/venv/bin/activate && make deps
+      - name: Create a venv and install dependencies
+        run: python -m venv /root/venv/ && . /root/venv/bin/activate && pip install --upgrade pip setuptools wheel && make deps
         if: steps.cache-venv.outputs.cache-hit != 'true'
-      - name: run Mypy
-        shell: bash
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
+      - name: run Mypy
+        shell: bash
         run: |
           set -x
           set -o pipefail
