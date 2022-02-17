@@ -13,22 +13,22 @@ on:
         required: true
 jobs:
   run_mypy:
-    container:
-      image: esharesinc/automated-refactoring
-      credentials:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      options: --user root
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - uses: actions/cache@v2
         id: cache-venv
         with:
-          path: /root/venv/
-          key: venv-${{ hashFiles('**/requirements*.txt') }}-${{ hashFiles('requirements/*.txt') }}
+          path: ./venv/
+          key: venv-${{ hashFiles('**/requirements*.txt') }}-${{ hashFiles('requirements/*.txt') }}-v0.1
       - name: Create a venv and install dependencies
-        run: python -m venv /root/venv/ && . /root/venv/bin/activate && pip install --upgrade pip wheel && pip install setuptools==58.0.1 && make deps
+        run: |
+          set -x
+          python -m venv ./venv/
+          . ./venv/bin/activate
+          pip install --upgrade pip wheel
+          pip install setuptools==58.0.1 && make deps
+          pip install fixit-linter --extra-index-url=https://dl.cloudsmith.io/${CLOUDSMITH_PIP}/carta/pip/python/index/
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
@@ -37,9 +37,9 @@ jobs:
         run: |
           set -x
           set -o pipefail
-          . /root/venv/bin/activate
+          . ./venv/bin/activate
           if [ -f mypy_dirs.txt ]; then
-            mypy @mypy_dirs.txt | tee mypy_report
+            mypy @mypy_dirs.txt | tee mypy_report.txt
           else
             mypy . | tee mypy_report.txt
           fi
@@ -49,4 +49,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
         run: |
           set -x
+          . ./venv/bin/activate
           python -m fixit_linter.linter.ci.add_comment_on_pr --message "Mypy identified some errors:" --inline --from-file mypy_report.txt --parser mypy
