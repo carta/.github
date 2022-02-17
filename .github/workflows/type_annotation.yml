@@ -28,7 +28,6 @@ jobs:
           . ./venv/bin/activate
           pip install --upgrade pip wheel
           pip install setuptools==58.0.1 && make deps
-          pip install fixit-linter --extra-index-url=https://dl.cloudsmith.io/${CLOUDSMITH_PIP}/carta/pip/python/index/
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
@@ -46,8 +45,10 @@ jobs:
       - name: report Mypy errors on the PR
         if: ${{ failure() }}
         env:
+          CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
           GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
         run: |
           set -x
           . ./venv/bin/activate
+          pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${CLOUDSMITH_PIP}/carta/pip/python/index/
           python -m fixit_linter.linter.ci.add_comment_on_pr --message "Mypy identified some errors:" --inline --from-file mypy_report.txt --parser mypy
