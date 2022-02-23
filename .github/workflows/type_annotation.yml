@@ -43,11 +43,10 @@ jobs:
           set -o pipefail
           . ./venv/bin/activate
           ${{ inputs.setup_mypy }}
-          curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
           if [ -f mypy_dirs.txt ]; then
-            mypy --config-file mypy.ini @mypy_dirs.txt | tee mypy_report.txt
+            mypy @mypy_dirs.txt | tee mypy_report.txt
           else
-            mypy --config-file mypy.ini . | tee mypy_report.txt
+            mypy . | tee mypy_report.txt
           fi
       - name: report Mypy errors on the PR
         if: ${{ failure() }}
