@@ -43,7 +43,7 @@ jobs:
           set -o pipefail
           . ./venv/bin/activate
           ${{ inputs.setup_mypy }}
-          curl -LJO https://raw.githubusercontent.com/carta/.github/CWS-938/configs/mypy.ini
+          curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
           if [ -f mypy_dirs.txt ]; then
             mypy --config-file mypy.ini @mypy_dirs.txt | tee mypy_report.txt
           else
