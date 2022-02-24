@@ -39,10 +39,20 @@ jobs:
           path: ./src/
           key: checkout-${{ github.sha }}-v0.1.0
       - uses: actions/cache@v2
+        id: cache-pip-http
+        with:
+          path: /home/runner/.cache/pip/http
+          key: pip-http-v0.1.0
+      - uses: actions/cache@v2
+        id: cache-pip-wheel
+        with:
+          path: /home/runner/.cache/pip/wheels
+          key: pip-wheel-v0.1.0
+      - uses: actions/cache@v2
         id: cache-venv
         with:
           path: ./venv/
-          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-v0.1.0
+          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-v0.1.4
       - name: Create a venv and install dependencies
         working-directory: src
         run: |
@@ -51,6 +61,7 @@ jobs:
           . ../venv/bin/activate
           pip install --upgrade pip wheel
           pip install setuptools==58.0.1 && make deps
+          pip cache info
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
@@ -68,7 +79,7 @@ jobs:
         id: cache-venv
         with:
           path: ./venv/
-          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-v0.1.0
+          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-v0.1.4
       - name: run Mypy
         shell: bash
         working-directory: src
