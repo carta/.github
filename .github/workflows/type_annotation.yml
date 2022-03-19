@@ -87,8 +87,9 @@ jobs:
           set -x
           set -o pipefail
           . ../venv/bin/activate
+          pip install mypy==0.931
           ${{ inputs.setup_mypy }}
-          curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
+          curl -LJO https://raw.githubusercontent.com/carta/.github/CWS-1013/configs/mypy.ini
           if [ -f mypy_dirs.txt ]; then
             mypy --config-file mypy.ini @mypy_dirs.txt | tee mypy_report.txt
           else
@@ -104,4 +105,5 @@ jobs:
           set -x
           . ../venv/bin/activate
           pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${CLOUDSMITH_PIP}/carta/pip/python/index/
+          mkdir -p logs/
           python -m fixit_linter.linter.ci.add_comment_on_pr --message "Mypy identified some errors:" --inline --from-file mypy_report.txt --parser mypy
