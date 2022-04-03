@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@master
         with:
           path: src
+          ref: ${{ github.ref_name }}
       - name: configure Git
         shell: bash
         working-directory: src
@@ -34,9 +35,8 @@ jobs:
           git config pull.rebase true
           git config user.name 'carta-ci'
           git config user.email 'carta-ci@carta.com'
-          git checkout -b ${{ github.ref_name }}
           git fetch origin ${{ github.ref_name }} --shallow-since=2022-03-30
-          git reset --hard origin/${{ github.head_ref }}
+          git reset --hard origin/${{ github.ref_name }}
       - uses: actions/cache@v2
         id: cache-checkout
         with:
