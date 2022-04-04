@@ -136,6 +136,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           S3_KEY: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_KEY }}
           S3_SECRET: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_SECRET }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -x
           pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${CLOUDSMITH_PIP}/carta/pip/python/index/
