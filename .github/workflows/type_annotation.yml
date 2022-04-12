@@ -22,25 +22,7 @@ on:
         required: true
 jobs:
   checkout:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-        with:
-          path: src
-          ref: ${{ github.head_ref }}
-          fetch-depth: 50
-        if: github.event_name == 'pull_request'
-      - uses: actions/checkout@master
-        with:
-          path: src
-          ref: ${{ github.ref_name }}
-          fetch-depth: 50
-        if: github.event_name != 'pull_request'
-      - uses: actions/cache@v2
-        id: cache-checkout
-        with:
-          path: ./src/
-          key: checkout-${{ github.sha }}-v0.1.0
+    uses: carta/.github/.github/workflows/checkout.yml@main
 
   install_dependency:
     runs-on: ubuntu-latest
