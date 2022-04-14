@@ -131,6 +131,7 @@ jobs:
           path: ./src/
           key: checkout-${{ github.sha }}-v0.1.0
       - name: run decompose linter
+        if: github.event_name == 'pull_request'
         working-directory: src
         shell: bash
         env:
