@@ -121,7 +121,7 @@ jobs:
           mkdir -p logs/
           python -m fixit_linter.linter.ci.add_comment_on_pr --message "Mypy identified some errors:" --inline --from-file mypy_report.txt --parser mypy
 
-  run_decompose:
+  run_fixit_linters:
     runs-on: ubuntu-latest
     needs: checkout
     steps:
@@ -143,4 +143,5 @@ jobs:
         run: |
           set -x
           pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${CLOUDSMITH_PIP}/carta/pip/python/index/
+          python3 -m fixit_linter.linter.general.github.pull_request_validator
           python3 -m fixit_linter.linter.decomposition.linter ${S3_KEY} ${S3_SECRET} ${PR_REPO}
