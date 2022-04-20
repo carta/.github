@@ -7,6 +7,10 @@ on:
         default: 'echo "No extra setup."'
         required: false
         type: string
+      fixit_linter_test_version:
+        default: ''
+        required: false
+        type: string
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -14,12 +18,15 @@ on:
         required: true
       CLOUDSMITH_PIP:
         required: true
+      CLOUDSMITH_PIP_TEST:
+        required: true
       CARTA_CI_GITHUB_TOKEN:
         required: true
       AUTOMATED_REFACTORING_S3_ACCESS_KEY:
         required: true
       AUTOMATED_REFACTORING_S3_ACCESS_SECRET:
         required: true
+
 jobs:
   checkout:
     runs-on: ubuntu-latest
@@ -112,12 +119,16 @@ jobs:
         if: ${{ failure() }}
         working-directory: src
         env:
-          CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
           GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
         run: |
           set -x
           . ../venv/bin/activate
-          pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${CLOUDSMITH_PIP}/carta/pip/python/index/
+          if [ -z "${{ inputs.fixit_linter_test_version }}" ]
+          then
+            pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP }}/carta/pip/python/index/
+          else
+            pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
+          fi
           mkdir -p logs/
           python -m fixit_linter.linter.ci.add_comment_on_pr --message "Mypy identified some errors:" --inline --from-file mypy_report.txt --parser mypy
 
@@ -135,7 +146,6 @@ jobs:
         working-directory: src
         shell: bash
         env:
-          CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           S3_KEY: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_KEY }}
           S3_SECRET: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_SECRET }}
@@ -143,6 +153,11 @@ jobs:
           PR_REPO: ${{ github.repository }}
         run: |
           set -x
-          pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${CLOUDSMITH_PIP}/carta/pip/python/index/
+          if [ -z "${{ inputs.fixit_linter_test_version }}" ]
+          then
+            pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP }}/carta/pip/python/index/
+          else
+            pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
+          fi
           python3 -m fixit_linter.linter.general.github.pull_request_validator
           python3 -m fixit_linter.linter.decomposition.linter ${S3_KEY} ${S3_SECRET} ${PR_REPO}
