@@ -19,7 +19,7 @@ on:
       CLOUDSMITH_PIP:
         required: true
       CLOUDSMITH_PIP_TEST:
-        required: true
+        required: false
       CARTA_CI_GITHUB_TOKEN:
         required: true
       AUTOMATED_REFACTORING_S3_ACCESS_KEY:
