@@ -168,4 +168,5 @@ jobs:
           python3 -m fixit_linter.linter.general.github.pull_request_validator
           if ${{ inputs.for_python }}; then
             python3 -m fixit_linter.linter.decomposition.linter ${S3_KEY} ${S3_SECRET} ${PR_REPO}
+            python3 -m fixit_linter.linter.decomposition.config_parser
           fi
