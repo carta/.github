@@ -56,6 +56,7 @@ jobs:
   install_dependency:
     runs-on: ubuntu-latest
     needs: checkout
+    if: ${{ inputs.for_python }}
     steps:
       - uses: actions/cache@v2
         id: cache-checkout
