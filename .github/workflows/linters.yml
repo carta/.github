@@ -107,6 +107,8 @@ jobs:
       - name: run Mypy
         shell: bash
         working-directory: src
+        env:
+          SETTINGS_SWITCHER: "base"
         run: |
           set -x
           set -o pipefail
