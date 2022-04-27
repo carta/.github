@@ -128,7 +128,9 @@ jobs:
         if: ${{ failure() }}
         working-directory: src
         env:
-          GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_REPO: ${{ github.repository }}
         run: |
           set -x
           . ../venv/bin/activate
