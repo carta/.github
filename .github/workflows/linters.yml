@@ -141,7 +141,7 @@ jobs:
             pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
           fi
           mkdir -p logs/
-          python -m fixit_linter.linter.ci.add_check_run --message "Mypy identified some errors:" --inline --from-file mypy_report.txt --parser mypy
+          python -m fixit_linter.linter.ci.add_check_run --message "Mypy identified some errors:" --from-file mypy_report.txt --parser mypy
 
   run_fixit_linters:
     runs-on: ubuntu-latest
