@@ -30,6 +30,8 @@ on:
         required: true
       AUTOMATED_REFACTORING_S3_ACCESS_SECRET:
         required: true
+      DD_API_KEY:
+        required: false
 
 jobs:
   checkout:
@@ -158,6 +160,7 @@ jobs:
           S3_SECRET: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_SECRET }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_REPO: ${{ github.repository }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
         run: |
           set -x
           if [ -z "${{ inputs.fixit_linter_test_version }}" ]
