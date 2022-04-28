@@ -128,7 +128,9 @@ jobs:
         if: ${{ failure() }}
         working-directory: src
         env:
-          GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_REPO: ${{ github.repository }}
         run: |
           set -x
           . ../venv/bin/activate
@@ -139,7 +141,7 @@ jobs:
             pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
           fi
           mkdir -p logs/
-          python -m fixit_linter.linter.ci.add_comment_on_pr --message "Mypy identified some errors:" --inline --from-file mypy_report.txt --parser mypy
+          python -m fixit_linter.linter.ci.add_check_run --from-file mypy_report.txt --parser mypy
 
   run_fixit_linters:
     runs-on: ubuntu-latest
