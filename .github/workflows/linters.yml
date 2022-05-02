@@ -124,7 +124,8 @@ jobs:
           else
             mypy --config-file mypy.ini . | tee mypy_report.txt
           fi
-      - name: report Mypy execution on the PR
+      - name: report Mypy execution on PR
+        if: always()
         working-directory: src
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
