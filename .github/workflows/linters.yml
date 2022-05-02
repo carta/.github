@@ -124,8 +124,7 @@ jobs:
           else
             mypy --config-file mypy.ini . | tee mypy_report.txt
           fi
-      - name: report Mypy errors on the PR
-        if: ${{ failure() }}
+      - name: report Mypy execution on the PR
         working-directory: src
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
