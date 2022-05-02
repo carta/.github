@@ -130,7 +130,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_REPO: ${{ github.repository }}
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
         run: |
           set -x
@@ -162,7 +161,6 @@ jobs:
           S3_KEY: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_KEY }}
           S3_SECRET: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_SECRET }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_REPO: ${{ github.repository }}
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
         run: |
           set -x
@@ -174,6 +172,6 @@ jobs:
           fi
           python3 -m fixit_linter.linter.general.github.pull_request_validator
           if ${{ inputs.for_python }}; then
-            python3 -m fixit_linter.linter.decomposition.linter ${S3_KEY} ${S3_SECRET} ${PR_REPO}
+            python3 -m fixit_linter.linter.decomposition.linter ${S3_KEY} ${S3_SECRET} ${GITHUB_REPOSITORY}
             python3 -m fixit_linter.linter.decomposition.config_parser
           fi
