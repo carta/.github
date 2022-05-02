@@ -129,7 +129,7 @@ jobs:
           pip install mypy==0.942
           ${{ inputs.setup_mypy }}
           if [ ${{ inputs.update_idl }} ]; then
-            echo "{ \"repository\": \"https://${{ secrets.CARTA_CI_GITHUB_TOKEN }}@github.com/carta/idl-registry.git\" }" > .idlrc
+            echo "{ \"repository\": \"https://${{ github.token }}@github.com/carta/idl-registry.git\" }" > .idlrc
             bash -c 'circus-idl update'
           fi
           curl -LJO https://raw.githubusercontent.com/carta/.github/rl/cws-1016/adding-extra-mypy-config/configs/mypy.ini
