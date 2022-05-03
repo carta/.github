@@ -124,8 +124,8 @@ jobs:
           else
             mypy --config-file mypy.ini . | tee mypy_report.txt
           fi
-      - name: report Mypy errors on the PR
-        if: ${{ failure() }}
+      - name: report Mypy execution on PR
+        if: always()
         working-directory: src
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -142,7 +142,7 @@ jobs:
           fi
           mkdir -p logs/
           python -m fixit_linter.linter.ci.add_check_run --from-file mypy_report.txt --parser mypy
-
+          
   run_fixit_linters:
     runs-on: ubuntu-latest
     needs: checkout
