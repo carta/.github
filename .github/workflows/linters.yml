@@ -122,7 +122,7 @@ jobs:
           . ../venv/bin/activate
           pip install mypy==0.942
           ${{ inputs.setup_mypy }}
-          curl -LJO https://raw.githubusercontent.com/carta/.github/rl/cws-1016/extra-mypy-config/configs/mypy.ini
+          curl -LJO https://raw.githubusercontent.com/carta/.github/c8b66ddc783d412d81d7381ae427fae984d92341/configs/mypy.ini
           echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
           if [ -f mypy_dirs.txt ]; then
             mypy --config-file mypy.ini @mypy_dirs.txt | tee mypy_report.txt
