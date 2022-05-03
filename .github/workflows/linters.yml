@@ -19,10 +19,6 @@ on:
         default: true
         required: false
         type: boolean
-      update_idl:
-        default: false
-        required: false
-        type: boolean
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -126,10 +122,6 @@ jobs:
           . ../venv/bin/activate
           pip install mypy==0.942
           ${{ inputs.setup_mypy }}
-          if [ ${{ inputs.update_idl }} ]; then
-            echo "{ \"repository\": \"https://${{ github.token }}@github.com/carta/idl-registry.git\" }" > .idlrc
-            bash -c 'circus-idl update'
-          fi
           curl -LJO https://raw.githubusercontent.com/carta/.github/rl/cws-1016/adding-extra-mypy-config/configs/mypy.ini
           echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
           if [ -f mypy_dirs.txt ]; then
