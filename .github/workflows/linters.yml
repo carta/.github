@@ -130,7 +130,7 @@ jobs:
             mypy --config-file mypy.ini . | tee mypy_report.txt
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
       - name: report Mypy errors on the PR
         if: ${{ failure() }}
         working-directory: src
