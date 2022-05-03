@@ -11,6 +11,10 @@ on:
         default: ''
         required: false
         type: string
+      extra_mypy_config:
+        default: ''
+        required: false
+        type: string
       for_python:
         default: true
         required: false
@@ -119,11 +123,14 @@ jobs:
           pip install mypy==0.942
           ${{ inputs.setup_mypy }}
           curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
+          echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
           if [ -f mypy_dirs.txt ]; then
             mypy --config-file mypy.ini @mypy_dirs.txt | tee mypy_report.txt
           else
             mypy --config-file mypy.ini . | tee mypy_report.txt
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
       - name: report Mypy execution on PR
         if: always()
         working-directory: src
