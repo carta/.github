@@ -128,6 +128,8 @@ jobs:
             pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
           fi
           
+          pip install --upgrade fixit-linter==0.0.135.dev1+cws1132mypylinter.6903298 --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
+          
           pip install mypy==0.942
           ${{ inputs.setup_mypy }}
           curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
