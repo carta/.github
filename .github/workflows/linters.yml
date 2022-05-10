@@ -135,7 +135,7 @@ jobs:
           
           python -m fixit_linter.linter.general.mypy_linter
         env:
-          GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
           
