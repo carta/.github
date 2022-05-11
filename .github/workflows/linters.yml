@@ -120,35 +120,24 @@ jobs:
           set -x
           set -o pipefail
           . ../venv/bin/activate
-          pip install mypy==0.942
-          ${{ inputs.setup_mypy }}
-          curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
-          echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
-          if [ -f mypy_dirs.txt ]; then
-            mypy --config-file mypy.ini @mypy_dirs.txt | tee mypy_report.txt
-          else
-            mypy --config-file mypy.ini . | tee mypy_report.txt
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
-      - name: report Mypy execution on PR
-        if: always()
-        working-directory: src
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          DD_API_KEY: ${{ secrets.DD_API_KEY }}
-        run: |
-          set -x
-          . ../venv/bin/activate
+          
           if [ -z "${{ inputs.fixit_linter_test_version }}" ]
           then
             pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP }}/carta/pip/python/index/
           else
             pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
           fi
-          mkdir -p logs/
-          python -m fixit_linter.linter.ci.add_check_run --from-file mypy_report.txt --parser mypy
+          
+          pip install mypy==0.942
+          ${{ inputs.setup_mypy }}
+          curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
+          echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
+          
+          python -m fixit_linter.linter.general.mypy_linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
           
   run_fixit_linters:
     runs-on: ubuntu-latest
