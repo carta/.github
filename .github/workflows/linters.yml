@@ -132,7 +132,8 @@ jobs:
           ${{ inputs.setup_mypy }}
           curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
           echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
-          
+
+          mkdir -p logs/
           python -m fixit_linter.linter.general.mypy_linter
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
