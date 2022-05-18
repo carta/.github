@@ -156,6 +156,7 @@ jobs:
           S3_KEY: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_KEY }}
           S3_SECRET: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_SECRET }}
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          LIBCST_PARSER_TYPE: native
         run: |
           set -x
           if [ -z "${{ inputs.fixit_linter_test_version }}" ]
