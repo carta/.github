@@ -99,9 +99,9 @@ jobs:
           fi
         if: steps.cache-fixit-venv.outputs.cache-hit != 'true'
 
-  install_dependency:
+  run_mypy:
     runs-on: ubuntu-latest
-    needs: checkout
+    needs: [checkout, prepare_fixit_venv]
     if: ${{ inputs.for_python }}
     steps:
       - uses: actions/cache@v2
@@ -123,7 +123,7 @@ jobs:
         id: cache-venv
         with:
           path: ./venv/
-          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-v0.1.4
+          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}
       - name: Create a venv and install dependencies
         working-directory: src
         run: |
@@ -133,26 +133,17 @@ jobs:
           pip install --upgrade pip wheel
           pip install setuptools==58.0.1 && make deps
           pip cache info
+          if [ -z "${{ inputs.fixit_linter_test_version }}" ]
+          then
+            pip install --upgrade fixit-linter==${{ needs.prepare_fixit_venv.outputs.latest_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP }}/carta/pip/python/index/
+          else
+            pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
+          fi
+          pip install mypy==0.942
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
           CLOUDSMITH_PIP_TEST: ${{ secrets.CLOUDSMITH_PIP_TEST }}
-
-  run_mypy:
-    runs-on: ubuntu-latest
-    needs: install_dependency
-    if: ${{ inputs.for_python }}
-    steps:
-      - uses: actions/cache@v2
-        id: cache-checkout
-        with:
-          path: ./src/
-          key: checkout-${{ github.sha }}-v0.1.0
-      - uses: actions/cache@v2
-        id: cache-venv
-        with:
-          path: ./venv/
-          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-v0.1.4
       - name: run Mypy
         shell: bash
         working-directory: src
@@ -160,15 +151,6 @@ jobs:
           set -x
           set -o pipefail
           . ../venv/bin/activate
-          
-          if [ -z "${{ inputs.fixit_linter_test_version }}" ]
-          then
-            pip install --upgrade fixit-linter --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP }}/carta/pip/python/index/
-          else
-            pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
-          fi
-          
-          pip install mypy==0.942
           ${{ inputs.setup_mypy }}
           curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
           echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
