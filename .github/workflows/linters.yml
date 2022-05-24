@@ -68,7 +68,7 @@ jobs:
   run_mypy:
     runs-on: ubuntu-latest
     needs: [checkout, prepare_fixit_venv]
-    if: ${{ inputs.for_python }}
+    if: ${{ inputs.for_python && github.event.action != 'edited' }}
     steps:
       - uses: actions/cache@v2
         id: cache-checkout
@@ -143,9 +143,22 @@ jobs:
         with:
           path: ./fixit-venv/
           key: fixit-venv-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+      - name: run pull_request linter
+        working-directory: src
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          LIBCST_PARSER_TYPE: native
+        run: |
+          set -x
+          . ../fixit-venv/bin/activate
+          python3 -m fixit_linter.linter.general.github.pull_request_validator
+
       - name: run decompose linter
         working-directory: src
         shell: bash
+        if: ${{ inputs.for_python && github.event.action != 'edited' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           S3_KEY: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_KEY }}
@@ -155,8 +168,5 @@ jobs:
         run: |
           set -x
           . ../fixit-venv/bin/activate
-          python3 -m fixit_linter.linter.general.github.pull_request_validator
-          if ${{ inputs.for_python }}; then
-            python3 -m fixit_linter.linter.decomposition.linter ${S3_KEY} ${S3_SECRET} ${GITHUB_REPOSITORY}
-            python3 -m fixit_linter.linter.decomposition.config_parser
-          fi
+          python3 -m fixit_linter.linter.decomposition.linter ${S3_KEY} ${S3_SECRET} ${GITHUB_REPOSITORY}
+          python3 -m fixit_linter.linter.decomposition.config_parser
