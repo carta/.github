@@ -1,0 +1,52 @@
+name: 'Prepare fixit-venv'
+description: 'Prepare fixit-venv'
+inputs:
+  CLOUDSMITH_PIP:
+    required: true
+  CLOUDSMITH_PIP_TEST:
+    required: true
+  FIXIT_LINTER_VERSION:
+    required: true
+
+outputs:
+  latest_version:
+    value: ${{ steps.latest_version.outputs.latest_version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: find the latest version
+      id: latest_version
+      shell: python
+      run: |
+        from re import search
+        from subprocess import run
+        output = run(
+          [
+            "pip", "install", "fixit-linter==random",
+            "--index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP }}/carta/pip/python/index/"
+          ],
+          capture_output=True
+        )
+        stderr = output.stderr.decode()
+        print(stderr)
+        latest_version = search("from versions: (?P<versions>[^)]+)\)", stderr).group("versions").split(", ")[-1]
+        print(f"::set-output name=latest_version::{latest_version}")
+    - uses: actions/cache@v2
+      id: cache-fixit-venv
+      with:
+        path: ./fixit-venv/
+        key: fixit-venv-${{ steps.latest_version.outputs.latest_version }}-${{ inputs.FIXIT_LINTER_VERSION }}-v0.1.0
+    - name: Create a venv and install fixit-linter
+      shell: bash
+      run: |
+        set -x
+        python -m venv fixit-venv
+        . fixit-venv/bin/activate
+        if [ -z "${{ inputs.FIXIT_LINTER_VERSION }}" ]
+        then
+          pip install --upgrade fixit-linter==${{ steps.latest_version.outputs.latest_version }} --extra-index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP }}/carta/pip/python/index/
+        else
+          pip install --upgrade fixit-linter${{ inputs.FIXIT_LINTER_VERSION }} --extra-index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
+        fi
+      if: steps.cache-fixit-venv.outputs.cache-hit != 'true'
