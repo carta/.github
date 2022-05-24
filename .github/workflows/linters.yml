@@ -76,20 +76,22 @@ jobs:
           path: ./src/
           key: checkout-${{ github.sha }}-v0.1.0
       - uses: actions/cache@v2
+        id: cache-venv
+        with:
+          path: ./venv/
+          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}
+      - uses: actions/cache@v2
         id: cache-pip-http
         with:
           path: /home/runner/.cache/pip/http
           key: pip-http-v0.1.0
+        if: steps.cache-venv.outputs.cache-hit != 'true'
       - uses: actions/cache@v2
         id: cache-pip-wheel
         with:
           path: /home/runner/.cache/pip/wheels
           key: pip-wheel-v0.1.0
-      - uses: actions/cache@v2
-        id: cache-venv
-        with:
-          path: ./venv/
-          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}
+        if: steps.cache-venv.outputs.cache-hit != 'true'
       - name: Create a venv and install dependencies
         working-directory: src
         run: |
