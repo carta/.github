@@ -1,0 +1,48 @@
+name: linters
+
+on:
+  workflow_call:
+    inputs:
+      fixit_linter_test_version:
+        default: ''
+        required: true
+        type: string
+    secrets:
+      CUSTOM_GITHUB_TOKEN:
+        required: true
+      CLOUDSMITH_PIP:
+        required: true
+      CLOUDSMITH_PIP_TEST:
+        required: true
+      DD_API_KEY:
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    outputs:
+      latest_version: ${{ steps.prepare_fixit_venv.outputs.latest_version }}
+    steps:
+      - name: Download action file
+        run: |
+          mkdir prepare_fixit_venv && cd prepare_fixit_venv
+          curl -LJ -o action.yml https://raw.githubusercontent.com/carta/.github/main/.github/actions/prepare_fixit_venv.yml
+      - name: Run prepare_fix_venv
+        id: prepare_fixit_venv
+        uses: ./prepare_fixit_venv
+        with:
+          CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
+          CLOUDSMITH_PIP_TEST: ${{ secrets.CLOUDSMITH_PIP_TEST }}
+          FIXIT_LINTER_VERSION: ${{ inputs.fixit_linter_test_version }}
+      - name: rebase
+        if: ${{ github.event.label.name == 'rebase' }}
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          LIBCST_PARSER_TYPE: native
+        run: |
+          set -x
+          . fixit-venv/bin/activate
+          python3 -m fixit_linter.linter.general.github.rebase_pull_request ${{ github.event.pull_request.head.sha }}
+
