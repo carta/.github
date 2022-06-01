@@ -161,6 +161,7 @@ jobs:
         if: ${{ inputs.for_python && github.event.action != 'edited' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN_CI: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
           S3_KEY: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_KEY }}
           S3_SECRET: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_SECRET }}
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
