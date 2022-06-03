@@ -16,6 +16,8 @@ on:
         required: true
       DD_API_KEY:
         required: true
+      SLACK_BOT_TOKEN:
+        required: false
 
 jobs:
   run:
@@ -45,4 +47,16 @@ jobs:
           set -x
           . fixit-venv/bin/activate
           python3 -m fixit_linter.linter.general.github.rebase_pull_request ${{ github.event.pull_request.head.sha }}
-
+      - name: notify-reviewer-teams
+        # if: ${{ github.event.label.name == 'notify-reviewer-teams' }}
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          LIBCST_PARSER_TYPE: native
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          set -x
+          . fixit-venv/bin/activate
+          # python3 -m fixit_linter.linter.general.github.notify_reviewer_teams ${{ github.event.pull_request.user.avatar_url }}
+          python3 -m fixit_linter.linter.general.github.notify_reviewer_teams https://avatars.githubusercontent.com/u/3840867?s=120&v=4
