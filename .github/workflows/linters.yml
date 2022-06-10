@@ -101,12 +101,7 @@ jobs:
           pip install --upgrade pip wheel
           pip install setuptools==58.0.1 && make deps
           pip cache info
-          if [ -z "${{ inputs.fixit_linter_test_version }}" ]
-          then
-            pip install --upgrade fixit-linter==${{ needs.prepare_fixit_venv.outputs.latest_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP }}/carta/pip/python/index/
-          else
-            pip install --upgrade fixit-linter${{ inputs.fixit_linter_test_version }} --extra-index-url=https://dl.cloudsmith.io/${{ secrets.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
-          fi
+          
           pip install mypy==0.942
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
@@ -124,7 +119,7 @@ jobs:
           echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
 
           mkdir -p logs/
-          python -m fixit_linter.linter.general.mypy_linter
+          python -m fixit_linter.linter.general.mypy_linter fixit-venv
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DD_API_KEY: ${{ secrets.DD_API_KEY }}

@@ -41,12 +41,12 @@ runs:
       shell: bash
       run: |
         set -x
-        python -m venv fixit-venv
-        . fixit-venv/bin/activate
-        if [ -z "${{ inputs.FIXIT_LINTER_VERSION }}" ]
-        then
-          pip install --upgrade fixit-linter==${{ steps.latest_version.outputs.latest_version }} --extra-index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP }}/carta/pip/python/index/
-        else
-          pip install --upgrade fixit-linter${{ inputs.FIXIT_LINTER_VERSION }} --extra-index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
+          python -m venv fixit-venv
+          . fixit-venv/bin/activate
+          if [ -z "${{ inputs.FIXIT_LINTER_VERSION }}" ]
+          then
+            pip install --upgrade fixit-linter==${{ steps.latest_version.outputs.latest_version }} --extra-index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP }}/carta/pip/python/index/
+          else
+            pip install --upgrade fixit-linter${{ inputs.FIXIT_LINTER_VERSION }} --extra-index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
         fi
       if: steps.cache-fixit-venv.outputs.cache-hit != 'true'
