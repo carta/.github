@@ -172,5 +172,5 @@ jobs:
         run: |
           set -x
           . ../fixit-venv/bin/activate
-          python3 -m fixit_linter.linter.decomposition.linter ${S3_KEY} ${S3_SECRET} ${GITHUB_REPOSITORY}
-          python3 -m fixit_linter.linter.decomposition.config_parser
+          decomposition_usage_linter
+          decomposition_config_linter
