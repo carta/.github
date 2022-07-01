@@ -125,6 +125,7 @@ jobs:
 
           mkdir -p logs/
           ../fixit-venv/bin/mypy_linter
+          ../fixit-venv/bin/mypy_not_enrolled_linter
         env:
           GITHUB_TOKEN_CI: ${{ secrets.CARTA_CI_GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
