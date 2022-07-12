@@ -19,6 +19,10 @@ on:
         default: true
         required: false
         type: boolean
+      python_version:
+        default: "3.8"
+        required: false
+        type: string
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -52,11 +56,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       latest_version: ${{ steps.prepare_fixit_venv.outputs.latest_version }}
+      python_path: ${{ steps.prepare_fixit_venv.outputs.python-path }}
     steps:
       - name: Download action file
         run: |
           mkdir prepare_fixit_venv && cd prepare_fixit_venv
-          curl -LJ -o action.yml https://raw.githubusercontent.com/carta/.github/main/.github/actions/prepare_fixit_venv.yml
+          # curl -LJ -o action.yml https://raw.githubusercontent.com/carta/.github/main/.github/actions/prepare_fixit_venv.yml
+          curl -LJ -o action.yml https://raw.githubusercontent.com/carta/.github/170f886c8d565aa9ad3479196bdc6b581d9491ee/.github/actions/prepare_fixit_venv.yml
       - name: Run prepare_fix_venv
         id: prepare_fixit_venv
         uses: ./prepare_fixit_venv
@@ -64,6 +70,7 @@ jobs:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
           CLOUDSMITH_PIP_TEST: ${{ secrets.CLOUDSMITH_PIP_TEST }}
           FIXIT_LINTER_VERSION: ${{ inputs.fixit_linter_test_version }}
+          PYTHON_VERSION: ${{ inputs.python_version }}
 
   run_mypy:
     runs-on: ubuntu-latest
@@ -79,7 +86,7 @@ jobs:
         id: cache-fixit-venv
         with:
           path: ./fixit-venv/
-          key: fixit-venv-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}
       - uses: actions/cache@v2
         id: cache-venv
         with:
@@ -107,7 +114,6 @@ jobs:
           pip install pip-tools
           pip install setuptools==58.0.1 && make deps
           pip cache info
-          pip install mypy==0.942
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
@@ -131,7 +137,59 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           S3_KEY: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_KEY }}
           S3_SECRET: ${{ secrets.AUTOMATED_REFACTORING_S3_ACCESS_SECRET }}
-          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_API_KEY: 1 # ${{ secrets.DD_API_KEY }}
+
+  run_flake8:
+    runs-on: ubuntu-latest
+    needs: [ checkout, prepare_fixit_venv ]
+    if: ${{ inputs.for_python && github.event.action != 'edited' }}
+    steps:
+      - uses: actions/cache@v2
+        id: cache-checkout
+        with:
+          path: ./src/
+          key: checkout-${{ github.sha }}-v0.1.0
+      - uses: actions/cache@v2
+        id: cache-fixit-venv
+        with:
+          path: ./fixit-venv/
+          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('requirements*.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+      - uses: actions/cache@v2
+        id: cache-venv
+        with:
+          path: ./venv/
+          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}
+      - uses: actions/cache@v2
+        id: cache-pip-http
+        with:
+          path: /home/runner/.cache/pip/http
+          key: pip-http-v0.1.0
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+      - uses: actions/cache@v2
+        id: cache-pip-wheel
+        with:
+          path: /home/runner/.cache/pip/wheels
+          key: pip-wheel-v0.1.0
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+      - name: run Flake8
+        shell: bash
+        working-directory: src
+        run: |
+          set -x
+          set -o pipefail
+          . ../venv/bin/activate
+          
+          if [ ! -f ".flake8" ]; then
+            #curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/.flake8
+            curl -LJO https://raw.githubusercontent.com/carta/.github/5743bf9f0b3378e964ec17224889817a0424807e/configs/.flake8
+          fi 
+          
+          mkdir -p logs/
+          ../fixit-venv/bin/python --version
+          ../fixit-venv/bin/flake8_linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DD_API_KEY: 1 #${{ secrets.DD_API_KEY }}
 
   run_fixit_linters:
     runs-on: ubuntu-latest
@@ -146,13 +204,13 @@ jobs:
         id: cache-fixit-venv
         with:
           path: ./fixit-venv/
-          key: fixit-venv-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('requirements*.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
       - name: run pull_request linter
         working-directory: src
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_API_KEY: 1 # ${{ secrets.DD_API_KEY }}
           LIBCST_PARSER_TYPE: native
         run: |
           set -x

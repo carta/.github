@@ -7,10 +7,14 @@ inputs:
     required: true
   FIXIT_LINTER_VERSION:
     required: true
+  PYTHON_VERSION:
+    required: true
 
 outputs:
   latest_version:
     value: ${{ steps.latest_version.outputs.latest_version }}
+  python-path:
+    value: ${{ steps.python-version-setup.outputs.python-path }}
 
 runs:
   using: 'composite'
@@ -32,16 +36,21 @@ runs:
         print(stderr)
         latest_version = search("from versions: (?P<versions>[^)]+)\)", stderr).group("versions").split(", ")[-1]
         print(f"::set-output name=latest_version::{latest_version}")
+    - uses: actions/setup-python@v4
+        id: python-version-setup
+        with:
+          python-version: ${{ inputs.PYTHON_VERSION }}
     - uses: actions/cache@v2
       id: cache-fixit-venv
       with:
         path: ./fixit-venv/
-        key: fixit-venv-${{ steps.latest_version.outputs.latest_version }}-${{ inputs.FIXIT_LINTER_VERSION }}-v0.1.0
+        key: fixit-venv-${{ inputs.PYTHON_VERSION }}-${{ hashFiles('requirements*.txt') }}-${{ steps.latest_version.outputs.latest_version }}-${{ inputs.FIXIT_LINTER_VERSION }}-v0.1.0
     - name: Create a venv and install fixit-linter
       shell: bash
       run: |
         set -x
-        python -m venv fixit-venv
+        export PYTHONPATH=${{ steps.python-version-setup.outputs.python-path }}
+        python3 -m venv fixit-venv
         . fixit-venv/bin/activate
         if [ -z "${{ inputs.FIXIT_LINTER_VERSION }}" ]
         then
@@ -49,4 +58,9 @@ runs:
         else
           pip install --upgrade fixit-linter${{ inputs.FIXIT_LINTER_VERSION }} --extra-index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
         fi
+        
+        # curl -LJO https://raw.githubusercontent.com/carta/.github/main/.github/requirements.txt
+        curl -LJO https://raw.githubusercontent.com/carta/.github/a15b5cb40f438f73790354d57a744470b007b3be/requirements.txt
+        
+        pip install -r requirements.txt
       if: steps.cache-fixit-venv.outputs.cache-hit != 'true'
