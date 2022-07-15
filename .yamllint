@@ -14,6 +14,6 @@ rules:
     allowed-values: ['true', 'false']
     check-keys: false
   # Ref: https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.trailing_spaces
-  trailing-spaces: {}
+  trailing-spaces: disable
   # Ref: https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.brackets
   brackets: {min-spaces-inside: 0, max-spaces-inside: 3}
