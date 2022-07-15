@@ -1,0 +1,12 @@
+name: validate-xaml
+
+on:
+  - push
+
+jobs:
+  validate-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Validate repository
+        run: yamllint .

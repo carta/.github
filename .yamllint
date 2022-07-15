@@ -1,0 +1,15 @@
+extends: default
+
+rules:
+  line-length:
+    max: 200
+    level: warning
+  # Ref: https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.document_start
+  document-start:
+    present: false
+  # Ref: https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.truthy
+  # Also required to manage a false positive with github configuration:
+  # https://github.com/adrienverge/yamllint/issues/158
+  truthy:
+    allowed-values: ['true', 'false']
+    check-keys: false
