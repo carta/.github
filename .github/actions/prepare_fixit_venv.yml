@@ -60,7 +60,7 @@ runs:
           pip install --upgrade fixit-linter${{ inputs.FIXIT_LINTER_VERSION }} --extra-index-url=https://dl.cloudsmith.io/${{ inputs.CLOUDSMITH_PIP_TEST }}/carta/pip-test/python/index/
         fi
         
-        curl -LJO https://raw.githubusercontent.com/carta/.github/main/.github/requirements.txt
+        curl -LJO https://raw.githubusercontent.com/carta/.github/main/requirements.txt
         
         pip install -r requirements.txt
       if: steps.cache-fixit-venv.outputs.cache-hit != 'true'
