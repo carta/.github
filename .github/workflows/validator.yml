@@ -1,4 +1,4 @@
-name: validate-xaml
+name: validate-yml
 
 on:
   - push
