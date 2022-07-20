@@ -109,9 +109,9 @@ jobs:
           set -x
           python -m venv ../venv/
           . ../venv/bin/activate
-          pip install --upgrade pip wheel
-          pip install pip-tools
-          pip install setuptools==58.0.1 && make deps
+          pip install --upgrade pip wheel pip-tools setuptools==58.0.1
+          curl -sSL https://install.python-poetry.org | python3 -
+          make deps
           pip cache info
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
