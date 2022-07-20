@@ -175,6 +175,8 @@ jobs:
           set -o pipefail
           . ../fixit-venv/bin/activate
           
+          export PYTHONPATH=`pwd`
+          
           if [ ! -f ".flake8" ]; then
             curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/.flake8
           fi 
