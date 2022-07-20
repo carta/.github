@@ -90,7 +90,7 @@ jobs:
         id: cache-venv
         with:
           path: ./venv/
-          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-${{ hashFiles('pyproject.toml') }}
+          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-${{ hashFiles('src/pyproject.toml') }}
       - uses: actions/cache@v2
         id: cache-pip-http
         with:
