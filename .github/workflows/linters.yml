@@ -85,12 +85,12 @@ jobs:
         id: cache-fixit-venv
         with:
           path: ./fixit-venv/
-          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('requirements*.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('fixit-requirements.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
       - uses: actions/cache@v2
         id: cache-venv
         with:
           path: ./venv/
-          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}
+          key: venv-${{ hashFiles('src/**/requirements*.txt') }}-${{ hashFiles('src/requirements/*.txt') }}-${{ hashFiles('pyproject.toml') }}
       - uses: actions/cache@v2
         id: cache-pip-http
         with:
@@ -154,7 +154,7 @@ jobs:
         id: cache-fixit-venv
         with:
           path: ./fixit-venv/
-          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('requirements*.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('fixit-requirements.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
       - uses: actions/cache@v2
         id: cache-pip-http
         with:
@@ -201,7 +201,7 @@ jobs:
         id: cache-fixit-venv
         with:
           path: ./fixit-venv/
-          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('requirements*.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('fixit-requirements.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
       - name: run pull_request linter
         working-directory: src
         shell: bash
