@@ -57,11 +57,12 @@ jobs:
     outputs:
       latest_version: ${{ steps.prepare_fixit_venv.outputs.latest_version }}
       python_path: ${{ steps.prepare_fixit_venv.outputs.python-path }}
+      fixit_venv_hash: ${{ steps.prepare_fixit_venv.outputs.fixit_venv_hash }}
     steps:
       - name: Download action file
         run: |
           mkdir prepare_fixit_venv && cd prepare_fixit_venv
-          curl -LJ -o action.yml https://raw.githubusercontent.com/carta/.github/main/.github/actions/prepare_fixit_venv.yml
+          curl -LJ -o action.yml https://raw.githubusercontent.com/carta/.github/CW-338/.github/actions/prepare_fixit_venv.yml
       - name: Run prepare_fix_venv
         id: prepare_fixit_venv
         uses: ./prepare_fixit_venv
@@ -85,7 +86,7 @@ jobs:
         id: cache-fixit-venv
         with:
           path: ./fixit-venv/
-          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('fixit-requirements.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+          key: fixit-venv-${{ inputs.python_version }}-${{ needs.prepare_fixit_venv.outputs.fixit_venv_hash }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
       - uses: actions/cache@v2
         id: cache-venv
         with:
@@ -154,7 +155,7 @@ jobs:
         id: cache-fixit-venv
         with:
           path: ./fixit-venv/
-          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('fixit-requirements.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+          key: fixit-venv-${{ inputs.python_version }}-${{ needs.prepare_fixit_venv.outputs.fixit_venv_hash }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
       - uses: actions/cache@v2
         id: cache-pip-http
         with:
@@ -201,7 +202,7 @@ jobs:
         id: cache-fixit-venv
         with:
           path: ./fixit-venv/
-          key: fixit-venv-${{ inputs.python_version }}-${{ hashFiles('fixit-requirements.txt') }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+          key: fixit-venv-${{ inputs.python_version }}-${{ needs.prepare_fixit_venv.outputs.fixit_venv_hash }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
       - name: run pull_request linter
         working-directory: src
         shell: bash
