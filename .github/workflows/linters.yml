@@ -62,7 +62,7 @@ jobs:
       - name: Download action file
         run: |
           mkdir prepare_fixit_venv && cd prepare_fixit_venv
-          curl -LJ -o action.yml https://raw.githubusercontent.com/carta/.github/CW-338/.github/actions/prepare_fixit_venv.yml
+          curl -LJ -o action.yml https://raw.githubusercontent.com/carta/.github/main/.github/actions/prepare_fixit_venv.yml
       - name: Run prepare_fix_venv
         id: prepare_fixit_venv
         uses: ./prepare_fixit_venv
