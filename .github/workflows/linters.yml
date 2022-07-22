@@ -114,6 +114,7 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           make deps
           pip cache info
+          pip install mypy==0.942
         if: steps.cache-venv.outputs.cache-hit != 'true'
         env:
           CLOUDSMITH_PIP: ${{ secrets.CLOUDSMITH_PIP }}
@@ -129,7 +130,7 @@ jobs:
           curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/mypy.ini
           echo "python_version = ${{ inputs.python_version }}" >> mypy.ini
           echo "${{ inputs.extra_mypy_config }}" >> mypy.ini
-
+          
           mkdir -p logs/
           ../fixit-venv/bin/python --version
           ../fixit-venv/bin/mypy_linter
