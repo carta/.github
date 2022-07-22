@@ -190,6 +190,53 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
 
+  run_check_black:
+    runs-on: ubuntu-latest
+    needs: [ checkout, prepare_fixit_venv ]
+    if: ${{ inputs.for_python && github.event.action != 'edited' }}
+    steps:
+      - uses: actions/cache@v2
+        id: cache-checkout
+        with:
+          path: ./src/
+          key: checkout-${{ github.sha }}-v0.1.0
+      - uses: actions/cache@v2
+        id: cache-fixit-venv
+        with:
+          path: ./fixit-venv/
+          key: fixit-venv-${{ inputs.python_version }}-${{ needs.prepare_fixit_venv.outputs.fixit_venv_hash }}-${{ needs.prepare_fixit_venv.outputs.latest_version }}-${{ inputs.fixit_linter_test_version }}-v0.1.0
+      - uses: actions/cache@v2
+        id: cache-pip-http
+        with:
+          path: /home/runner/.cache/pip/http
+          key: pip-http-v0.1.0
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+      - uses: actions/cache@v2
+        id: cache-pip-wheel
+        with:
+          path: /home/runner/.cache/pip/wheels
+          key: pip-wheel-v0.1.0
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+      - name: run Black check on updated files
+        shell: bash
+        working-directory: src
+        run: |
+          set -x
+          set -o pipefail
+          . ../fixit-venv/bin/activate
+          
+          if [ ! -f "src/pyproject.toml" ]; then
+            export XDG_CONFIG_HOME=./src/.github/main/configs/.black
+            curl -LJO https://raw.githubusercontent.com/carta/.github/main/configs/.black
+          fi 
+          
+          mkdir -p logs/
+          python3 --version
+          black_linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+
   run_fixit_linters:
     runs-on: ubuntu-latest
     needs: [checkout, prepare_fixit_venv]
